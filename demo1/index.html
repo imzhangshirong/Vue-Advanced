@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vue.js 进阶 Demo 1，响应式原理</title>
+        <meta charset="utf-8">
+        <script src="../vue.js/vue2.2.6.js"></script>
+        <style>
+            .os{
+                color:gray;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <section>
+                <h1>Vue由数据驱动</h1>
+                <img width="700px" src="data.png"/>
+            </section>
+            <section>
+                <h1>setter和getter来响应数据的变化</h1>
+                <p class="os">正因为这样，我们在添加数据和改变数据的时候需要注意一些地方（在Vue Primary里的数组赋值也有体会）</p>
+                <p>由于JavaScript的限制，Vue不能监听对象属性的增加和删除。Vue在初始化时定义了setter和getter使得能在一定程度上响应数据的变化</p>
+                <p>我们在<b>根对象</b>上，新添加一个属性：newMessage => {{newMessage}}</p>
+                <p class="os">Vue并没有输出 miaomiaomiao?</p>
+                <p>我们使用Vue.set在<b>根对象</b>新添加一个属性：newMessage2 => {{newMessage2}}</p>
+                <button onclick="Vue.set(data,'newMessage2','23333')">add newMessage2</button>
+                <p class="os">Vue报错警告，应避免在Vue运行过程中添加根对象的属性</p>
+                <p>我们使用Vue.set在<b>对象a</b>新添加一个属性：newMessage => {{a.newMessage}}</p>
+                <button onclick="Vue.set(app.a,'newMessage','23333')">add a.newMessage</button>
+                <p class="os">Vue.set只能新增设置嵌套对象（数组）里的属性（元素）</p>
+                <p class="os">同时这里我们发现之前赋值的newMessage2得到了输出，也就说明Vue.set会初始化未设置setter和getter的<b>根对象</b>属性，同时也会触发一次渲染</p>
+                <p>对于对象的赋值可以像数组那样，直接用一个新的对象去替换原来的：this.someObject = Object.assign({}, this.someObject, { a: 1, b: 2 })</p>
+            </section>
+            <section>
+                <h1>Vue的异步更新</h1>
+                <p>在我们改变一个属性值的时候，app.some="some"，DOM不会立刻更新，Vue 开启一个队列，并缓冲在同一事件循环中发生的所有数据改变。如果同一个 watcher 被多次触发，只会一次推入到队列中。</p>
+                <p>接下来在Vue的一个tick（事件循环）内，刷新队列并执行实际（已去重的）工作。Vue 在内部尝试对异步队列使用原生的 Promise.then 和 MutationObserver，如果执行环境不支持，会采用 setTimeout(fn, 0) 代替。</p>
+                <p>如果我们想在，app.some="some"，立刻进行渲染可以使用：Vue.nextTick(callback)，或者在内部使用.$nextTick()</p>
+            </section>
+        </div>
+    </body>
+    <script src="vue.demo.js"></script>
+</html>
