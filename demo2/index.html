@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vue.js 进阶 Demo 2，过度效果</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <script src="../vue.js/vue2.2.6.js"></script>
+        <style>
+            pre{
+                background-color:#f5f5f5;
+                margin: 10px; 
+                padding: 10px;
+                overflow-x: auto;
+            }
+            .os{
+                color:gray;
+            }
+            .fade-enter-active, .fade-leave-active {
+                transition: opacity .5s
+            }
+            .fade-enter, .fade-leave-active {
+                opacity: 0
+            }
+            .bounce-enter-active {
+                animation: bounce-in 0.7s;
+            }
+            .bounce-leave-active {
+                animation: bounce-out 0.7s;
+            }
+            @keyframes bounce-in {
+                0% {
+                    transform: scale(0);
+                }
+                50% {
+                    transform: scale(1.5);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+            @keyframes bounce-out {
+                0% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.5);
+                }
+                100% {
+                    transform: scale(0);
+                }
+            }
+            .list2-leave,.list-leave{
+                opacity: 1;
+            }
+            .list2-leave-active,.list-leave-active{
+                margin-left:50px;
+                opacity: 0;
+                transition: all .5s;
+            }
+            .list2-enter-active,.list-enter-active{
+                margin-left:0px;
+                opacity: 1;
+                transition: all 1.5s;
+            }
+            .list2-enter,.list-enter{
+                margin-left:-50px;
+                opacity: 0;
+            }
+            .list2-move{
+                transition: all .7s;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <section>
+                <h1>Vue强大神奇的transition</h1>
+                <p class="os">我们前面介绍了v-class和v-style，使得我们能自定义去改变元素产生效果，不过有没有更好更方便的呢？</p>
+                <p>Vue 提供了 transition 的封装组件，在下列情形中，可以给任何元素和组件添加 entering/leaving 过渡</p>
+                <ul>
+                    <li>v-if</li>
+                    <li>v-show</li>
+                    <li>动态组件</li>                    
+                    <li>组件根节点</li>                    
+                </ul>
+                <button @click="show">toggle</button>
+                <transition name="fade"><span v-if="isShow">{{isShow}}</span></transition>
+                <p class="os">Vue会自动去设置transition对应name的class，动画分为以下4个部分</p>
+                <ul>
+                    <li>v-enter: 定义进入过渡的开始状态。在元素被插入时生效，在下一个帧移除。</li>
+                    <li>v-enter-active: 定义进入过渡的结束状态。在元素被插入时生效，在 transition/animation 完成之后移除。</li>
+                    <li>v-leave: 定义离开过渡的开始状态。在离开过渡被触发时生效，在下一个帧移除。</li>                    
+                    <li>v-leave-active: 定义离开过渡的结束状态。在离开过渡被触发时生效，在 transition/animation 完成之后移除。</li>                    
+                </ul>
+                <img src="data.png" width="800px"/>
+                <p class="os">这里我们对应着.fade-enter-active, .fade-leave-active 以及 .fade-enter, .fade-leave-active</p>
+                <p class="os">使用animation也可以，不过 v-enter 类名在节点插入 DOM 后不会立即删除，而是在 animationend 事件触发时删除。</p>
+                <p>当然这种模式有一些不好的地方，例如我需要多个效果叠加，对于多个动画我要声明很多次重复的部分，显然是很麻烦的。这里我们可以指定transition标签的属性（优先级高于name）：enter-class、enter-active-class、leave-class、leave-active-class</p>
+                <button @click="show2">toggle2</button>
+                <transition enter-active-class="bounce-enter-active" leave-active-class="bounce-leave-active"><div v-if="isShow2">{{isShow2}}</div></transition>
+                <p class="os">若同时使用transition和animation，要注意transition和animation结束时间可能不同</p>
+                <p class="os">因此需要指定transition标签的type属性设置为 animation 或 transition来告诉Vue该监听transitionend 还是 animationend</p>
+            </section>
+            <section>
+                <h1>transition使用JavaScript动画</h1>
+                <p class="os">可以自然的想到应该有监控动画的事件，没错。可以在属性中声明 JavaScript 钩子</p>
+<pre>
+&lt;transition
+    v-bind:css="false"
+    v-on:before-enter="beforeEnter"
+    v-on:enter="enter"
+    v-on:after-enter="afterEnter"
+    v-on:enter-cancelled="enterCancelled"
+    v-on:before-leave="beforeLeave"
+    v-on:leave="leave"
+    v-on:after-leave="afterLeave"
+    v-on:leave-cancelled="leaveCancelled"
+&gt;
+    &lt;!-- ... --&gt;
+&lt;/transition&gt;
+</pre>
+<pre>
+// ...
+methods: {
+  // --------
+  // 进入中
+  // --------
+  beforeEnter: function (el) {
+    // ...
+  },
+  // 此回调函数是可选项的设置
+  // 与 CSS 结合时使用
+  enter: function (el, done) {
+    // ...
+    done()
+  },
+  afterEnter: function (el) {
+    // ...
+  },
+  enterCancelled: function (el) {
+    // ...
+  },
+  // --------
+  // 离开时
+  // --------
+  beforeLeave: function (el) {
+    // ...
+  },
+  // 此回调函数是可选项的设置
+  // 与 CSS 结合时使用
+  leave: function (el, done) {
+    // ...
+    done()
+  },
+  afterLeave: function (el) {
+    // ...
+  },
+  // leaveCancelled 只用于 v-show 中
+  leaveCancelled: function (el) {
+    // ...
+  }
+}
+</pre>            
+                <p class="os">特别地，在enter和leave中，动画完成时一定要调用done，否则Vue无法知道什么时候结束</p>
+                <p class="os">Tips：元素添加 v-bind:css="false"，Vue 会跳过 CSS 的检测。这也可以避免过渡过程中 CSS 的影响。</p>
+                <p>有时候我们需要在用户第一次看见组件的时候就触发动画，即在初始渲染加载动画</p>
+                <p>我们可以给transition标签添加appear属性，类比enter和leave，过渡css我们也有下面的</p>
+                <ul>
+                    <li>v-appear</li>
+                    <li>v-appear-active</li>
+                </ul>
+                <p>JavaScript钩子也有下面的</p>
+                <ul>
+                    <li>before-appear</li>
+                    <li>appear</li>
+                    <li>after-appear</li>
+                </ul>
+            </section>
+            <section>
+                <h1>多元素的过渡动画</h1>
+                <p class="os">我们前面介绍了v-if和v-show可以触发 entering/leaving 过渡</p>
+                <p class="os">这里我们要注意一下，想Primary里我们实验的列表一样，如果没有指定元素key（告诉Vue这几个是不同的，要重新创建），Vue只是做单纯的内容替换，对于同样tag名也是一样的道理</p>
+                <transition name="fade">
+                    <button v-if="isShow3" @click="show3">toggle3:{{isShow3}}</button>
+                    <button v-else="isShow3" @click="show3">没有动画 toggle3:{{isShow3}}</button>
+                </transition>
+                <transition name="fade">
+                    <button v-if="isShow4" @click="show4" key="show4">toggle4:{{isShow4}}</button>
+                    <button v-else="isShow4" @click="show4" key="show4hide">有动画 toggle4:{{isShow4}}</button>
+                </transition>
+                <p class="os">上面的toggle4我们发现很奇怪，我们希望原来的先消失，新的再进入，我们给transition添加mode属性：</p>
+                <ul>
+                    <li>out-in：out即老的先退出，再是in即新的</li>
+                    <li>in-out：和上面相反</li>
+                </ul>
+                <transition name="fade" mode="out-in">
+                    <button v-if="isShow5" @click="show5" key="show5">toggle5:{{isShow5}}</button>
+                    <button v-else="isShow5" @click="show5" key="show5hide">有动画 toggle5:{{isShow5}}</button>
+                </transition>
+                <p>对于component，我们在Primary里也实践过，通过改变is属性可以切换组件，我们要做的只是在外面套上一层transition，和多元素一样（区别是，我们不需要key）</p>
+            </section>
+            <section>
+                <h1>列表过渡动画</h1>
+                <p class="os">Primary里我们通过v-for渲染出了列表，那么可以再酷炫一点吗？</p>
+                <p>接下来我们介绍transition-group，一目了然group指的就是一组</p>
+                <button v-on:click="add">Add</button>
+                <button v-on:click="remove">Remove</button>
+                <transition-group name="list" tag="ul" id="checkclass">
+                    <li v-for="item in arrayData" v-bind:key="item.type">
+                        {{ item.message }} => {{ item.type }}
+                    </li>
+                </transition-group>
+                <p class="os">如果我们想做到列表上下的移动呢？</p>
+                <button v-on:click="shuffle">shuffle</button>
+                <transition-group name="list2" tag="ul" >
+                    <li v-for="item in arrayData" v-bind:key="item.type">
+                        {{ item.message }} => {{ item.type }}
+                    </li>
+                </transition-group>
+                <p class="os">做到这种效果，Vue使用了FLIP动画队列（需要注意的是使用 FLIP 过渡的元素不能设置为 display: inline 。作为替代方案，可以设置为 display: inline-block 或者放置于 flex 中）</p>
+            </section>
+            <section>
+                <h1>其他的过渡动画</h1>
+                <p>前面我们提到了，可以监听过渡事件来于JavaScript通信，这样我们可以做到更多的效果</p>
+                <p>想要复用一个过渡，可以在模板里声明</p>
+                <p>动态切换过渡，很简单在transition上，:name="trans"</p>
+            </section>
+        </div>
+    </body>
+    <script>
+        var ttt="";
+        var dd=0;
+        setInterval(function(){
+            var ele=document.getElementById("checkclass");
+            if(ele){
+                if(ele.children.length>0){
+                    dd=ele.children.length;
+                    if(ttt!=ele.children[dd-1].className){
+                        ttt=ele.children[dd-1].className;
+                        console.log(ttt);
+                    }
+                }
+            }
+        },10);
+    </script>
+    <script src="vue.demo.js?t=2"></script>
+</html>
