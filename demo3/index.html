@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vue.js 进阶 Demo 3，过度状态</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <script src="../vue.js/vue2.2.6.js"></script>
+        <script src="TweenLite.min.js"></script>
+        <style>
+            pre{
+                background-color:#f5f5f5;
+                margin: 10px; 
+                padding: 10px;
+                overflow-x: auto;
+            }
+            .os{
+                color:gray;
+            }
+            .poly{
+                fill: #ff6505;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <section>
+                <h1>Vue可以响应数据的变化，使得我们能动画响应数据，我们可以使用第三方库来过渡数据的变化，例如Tween</h1>
+                <p class="os">我们直接来个酷炫的</p>
+                <svg width="200" height="200">
+                    <polygon :points="polyPoints" :style="{fill:polyColor}"></polygon>
+                </svg><br>
+                <label for="poly-color">颜色 {{polyColor}}</label><br><input v-model="polyColor" id="poly-color"/><br>
+                <label for="poly-deg">边数 {{polyDeg}}</label><br><input v-model="polyDeg" id="poly-deg" type="range" min="3" max="200"/><br>
+                <label for="poly-R">最小半径 {{polyR}}</label><br><input v-model.number="polyR" id="poly-R" type="range" min="20" max="90"/><br>
+                <label for="poly-timer">时间 {{polyTimer}} ms</label><br><input v-model="polyTimer" id="poly-timer" type="range" min="40" max="2000"/><br>
+            </section>
+        </div>
+    </body>
+    <script src="vue.demo.js?t=3"></script>
+</html>
