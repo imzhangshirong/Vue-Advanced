@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vue.js 进阶 Demo 5，自定义指令和混合</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <script src="../vue.js/vue2.2.6.js"></script>
+        <style>
+            pre{
+                background-color:#f5f5f5;
+                margin: 10px; 
+                padding: 10px;
+                overflow-x: auto;
+            }
+            .os{
+                color:gray;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <section>
+                <h1>我们所使用的v-model,v-on,v-if等都是一种指令，Vue也允许我们自定义我们自己的指令</h1>
+                <p class="os">下面第2个input会自动onfocus</p>
+                <input/>
+                <input v-focus/>
+                <p>定义directive时可以给定以下钩子</p>
+                <ul>
+                    <li>bind: 只调用一次，指令第一次绑定到元素时调用，用这个钩子函数可以定义一个在绑定时执行一次的初始化动作</li>
+                    <li>inserted: 被绑定元素插入父节点时调用（父节点存在即可调用，不必存在于 document 中）</li>
+                    <li>update: 被绑定元素所在的模板更新时调用，而不论绑定值是否变化。通过比较更新前后的绑定值，可以忽略不必要的模板更新（详细的钩子函数参数见下）</li>
+                    <li>componentUpdated: 被绑定元素所在模板完成一次更新周期时调用</li>
+                    <li>bind: 只调用一次，指令第一次绑定到元素时调用，用这个钩子函数可以定义一个在绑定时执行一次的初始化动作</li>
+                    <li>unbind: 只调用一次， 指令与元素解绑时调用</li>
+                </ul>
+                <p>看一下钩子函数的参数</p>
+                <ul>
+                    <li>el: 指令所绑定的元素，可以用来直接操作 DOM </li>
+                    <li>binding: 一个对象，包含以下属性：
+                        <ul>
+                            <li>name: 指令名，不包括 v- 前缀</li>
+                            <li>value: 指令的绑定值， 例如： v-my-directive="1 + 1", value 的值是 2</li>
+                            <li>oldValue: 指令绑定的前一个值，仅在 update 和 componentUpdated 钩子中可用。无论值是否改变都可用</li>
+                            <li>expression: 绑定值的字符串形式。 例如 v-my-directive="1 + 1" ， expression 的值是 "1 + 1"</li>
+                            <li>arg: 传给指令的参数。例如 v-my-directive:foo， arg 的值是 "foo"</li>
+                            <li>modifiers: 一个包含修饰符的对象。 例如： v-my-directive.foo.bar, 修饰符对象 modifiers 的值是 { foo: true, bar: true }</li>
+                        </ul>
+                    </li>
+                    <li>vnode: Vue 编译生成的虚拟节点</li>
+                    <li>oldVnode: 上一个虚拟节点，仅在 update 和 componentUpdated 钩子中可用</li>
+                </ul>
+                <p class="os">除了 el 之外，其它参数都应该是只读的，尽量不要修改他们。如果需要在钩子之间共享数据，建议通过元素的 dataset(设置前缀为data-的元素属性) 来进行。</p>
+            </section>
+            <section>
+                <h1>接下来介绍一下Vue混合mixin和extend</h1>
+<pre>
+// 定义一个混合对象
+var myMixin = {
+  created: function () {
+    this.hello()
+  },
+  methods: {
+    hello: function () {
+      console.log('hello from mixin!')
+    }
+  }
+}
+// 定义一个使用混合对象的组件
+var Component = Vue.extend({
+  mixins: [myMixin]
+})
+var component = new Component() // -> "hello from mixin!"
+</pre>
+                <p class="os">我们再来看个混合的例子</p>
+<pre>
+var mixin = {
+  methods: {
+    foo: function () {
+      console.log('foo')
+    },
+    conflicting: function () {
+      console.log('from mixin')
+    }
+  }
+}
+var vm = new Vue({
+  mixins: [mixin],
+  methods: {
+    bar: function () {
+      console.log('bar')
+    },
+    conflicting: function () {
+      console.log('from self')
+    }
+  }
+})
+vm.foo() // -> "foo"
+vm.bar() // -> "bar"
+vm.conflicting() // -> "from self"
+</pre>
+                <p class="os">如果键名相同的话，取最后混合（或继承）的（即组件）键值</p>
+                <p class="os">全局混合我们使用Vue.mixin({//..})</p>
+            </section>
+            
+        </div>
+    </body>
+    <script src="vue.demo.js?t=3"></script>
+</html>
