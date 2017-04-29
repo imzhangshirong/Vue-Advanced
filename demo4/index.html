@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vue.js 进阶 Demo 4，Render函数</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <script src="../vue.js/vue2.2.6.js"></script>
+        <style>
+            pre{
+                background-color:#f5f5f5;
+                margin: 10px; 
+                padding: 10px;
+                overflow-x: auto;
+            }
+            .os{
+                color:gray;
+            }
+            .poly{
+                fill: #ff6505;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <section>
+                <h1>在Primary里我们使用template来定义模板，这里我们用Render函数</h1>
+                <p class="os">我们定义2个结构一样的Component</p>
+                <app-t1 title="hello"></app-t1>
+                <p class="os">下面的这个我们用render函数定义，再改一下颜色</p>
+                <app-t2 title="hello"></app-t2>
+                <p class="os">定义render函数时记得接受createElement方法参数</p>
+                <p class="os">这里我们注意一下slot，在使用的时候this.$slots.name（如果是default表示未指明的slot）</p> 
+                <app-t3 title="hello"><h1 slot="title">hello这里是title的slot</h1><span slot="message">hello这里是message的slot啊</span><span>这里是default的slot</span></app-t3>
+                <p class="os">在其他的前端框架中我们可以看到使用JSX来定义模板，更加直观（使用 Babel plugin 插件）</p>
+<pre>
+Vue.component('jsx-example', {
+  render (h) { // &lt;--  将 h 作为 createElement 的别名是 Vue 生态系统中的一个通用惯例，实际上也是 JSX 所要求的，如果在作用域中 h 失去作用， 在应用中会触发报错。
+    return &lt;div id="foo"&gt;bar&lt;/div&gt;
+  }
+})
+</pre>
+            </section>
+            <section>
+                <h1>createElement函数</h1>
+<pre>
+// @returns {VNode}
+createElement(
+  // {String | Object | Function}
+  // 一个 HTML 标签字符串，组件选项对象，或者一个返回值类型为String/Object的函数，必要参数
+  'div',
+  // {Object}
+  // 一个包含模板相关属性的数据对象
+  // 可以在 template 中使用这些属性.可选参数.
+  {
+    // (详情见下一节)
+  },
+  // {String | Array}
+  // 子节点(VNodes)，可以是一个字符串或者一个数组. 可选参数.
+  [
+    createElement('h1', 'hello world'),
+    createElement(MyComponent, {
+      props: {
+        someProp: 'foo'
+      }
+    }),
+    'bar'
+  ]
+)
+</pre>
+<pre>
+{
+  // 和`v-bind:class`一样的 API
+  'class': {
+    foo: true,
+    bar: false
+  },
+  // 和`v-bind:style`一样的 API
+  style: {
+    color: 'red',
+    fontSize: '14px'
+  },
+  // 正常的 HTML 特性
+  attrs: {
+    id: 'foo'
+  },
+  // 组件 props
+  props: {
+    myProp: 'bar'
+  },
+  // DOM 属性
+  domProps: {
+    innerHTML: 'baz'
+  },
+  // 事件监听器基于 "on"
+  // 所以不再支持如 v-on:keyup.enter 修饰器
+  // 需要手动匹配 keyCode。
+  on: {
+    click: this.clickHandler
+  },
+  // 仅对于组件，用于监听原生事件，而不是组件内部使用 vm.$emit 触发的事件。
+  nativeOn: {
+    click: this.nativeClickHandler
+  },
+  // 自定义指令. 注意事项：不能对绑定的旧值设值
+  // Vue 会为您持续追踪
+  directives: [
+    {
+      name: 'my-custom-directive',
+      value: '2'
+      expression: '1 + 1',
+      arg: 'foo',
+      modifiers: {
+        bar: true
+      }
+    }
+  ],
+  // Scoped slots in the form of
+  // { name: props => VNode | Array&lt;VNode&gt; }
+  scopedSlots: {
+    default: props => h('span', props.text)
+  },
+  // 如果组件是其他组件的子组件，需为slot指定名称
+  slot: 'name-of-slot'
+  // 其他特殊顶层属性
+  key: 'myKey',
+  ref: 'myRef'
+}
+</pre>           <p>注意事项：一个VNode不可以多次使用</p>
+<pre>
+render: function (createElement) {
+  var myParagraphVNode = createElement('p', 'hi')
+  return createElement('div', [
+    // 错误-重复的VNodes
+    myParagraphVNode, myParagraphVNode
+  ])
+}
+</pre>
+            </section>
+            <section>
+                <h1>函数化组件</h1>
+                <p class="os">函数化组件，顾名思义就是没有无状态（data），没有实例（this）</p>
+<pre>
+Vue.component('my-component', {
+  functional: true,
+  // 为了弥补缺少的实例
+  // 提供第二个参数作为上下文
+  render: function (createElement, context) {//注意这里，比非函数化的参数多了个context上下文
+    // ...
+  },
+  // Props 可选
+  props: {
+    // ...
+  }
+})
+</pre>
+                <p>组件需要的一切都是通过上下文传递，包括：</p>
+                <ul>
+                    <li>context.props: 提供props 的对象</li>
+                    <li>context.children: VNode 子节点的数组</li>
+                    <li>context.slots: slots 对象</li>
+                    <li>context.data: 传递给组件的 data 对象</li>
+                    <li>context.parent: 对父组件的引用</li>
+                </ul>
+                <p class="os">this.someProp变为context.data.someProp</p>
+                <p>要注意slots和children的区别</p>
+<pre>
+&lt;my-functional-component&gt;
+  &lt;p slot="foo"&gt;
+    first
+  &lt;/p&gt;
+  &lt;p>second&lt;/p&gt;
+&lt;/my-functional-component&gt;
+</pre>         
+                <p class="os">children 会给你两个段落标签，而 slots().default 只会传递第二个匿名段落标签，slots().foo 会传递第一个具名段落标签</p>
+            </section>
+        </div>
+    </body>
+    <script src="vue.demo.js?t=3"></script>
+</html>
