@@ -20,7 +20,7 @@ var app=new Vue({
         getStringPoints:function(data){
             return data.map(function(item){return item.x+","+item.y;}).join(" ");
         },
-        movePoints: function (newStats) {
+        movePoints: function (newStats) { 
             var app=this;
             TweenLite.to(
                 this.$data,
