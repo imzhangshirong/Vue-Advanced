@@ -31,7 +31,7 @@ var app=new Vue({
             var app=this;
             var R=this.polyR;
             var kRa=2*Math.PI/this.polyDeg;
-            newData=Array.apply(Array.prototype.map,{length:app.polyDeg}).map(function(i,index){
+            newData=Array.apply(null,{length:app.polyDeg}).map(function(i,index){
                 var d=R+(100-R)*Math.random();
                 return {x:100+d*Math.cos(kRa*index),y:100+d*Math.sin(kRa*index)};
             });
