@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vue.js 进阶 Demo 6，Vue-router</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <script src="../vue.js/vue2.2.6.js"></script>
+        <script src="./vue-router.js"></script>
+        <style>
+            pre{
+                background-color:#f5f5f5;
+                margin: 10px; 
+                padding: 10px;
+                overflow-x: auto;
+            }
+            .os{
+                color:gray;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <!-- 路由出口 -->
+            <!-- 路由匹配到的组件将渲染在这里 -->
+            <router-view style="padding:10px;background-color:red;position:fixed"></router-view>
+            <section style="padding-top:100px">
+                <h1>Hello Vue Router!</h1>
+                <p>
+                  <!-- 使用 router-link 组件来导航. -->
+                  <!-- 通过传入 `to` 属性指定链接. -->
+                  <!-- <router-link> 默认会被渲染成一个 `<a>` 标签 -->
+                  <router-link to="/foo" class="a">Go to Foo</router-link>
+                  <router-link to="/bar">Go to Bar</router-link>
+                </p>
+                
+                <!--router-view></router-view-->                
+                <p class="os">注意：一个App内一级只能有一个router，如果存在同级router-view，内容将会是一样</p>
+                <p class="os">我们可以观察到，router-link被渲染成a标签，href有规律，同时当点击一个router-link时，class发生变化，（猜想：这和我们前面一样，可以过渡）</p>
+                
+            </section>
+            <section>
+                <h1>动态路由匹配</h1>
+                <ul v-for="(user,key) in users">
+                    <li key="user"><router-link :to="'/user/'+key" >{{key}}</router-link></li>
+                </ul>
+                <p class="os">路由匹配，在针对于某些需要传入参数的route很有用处，上面是一个例子，参数通过$route.params.some来获取</p>
+            </section>
+            <section>
+                <h1>高级匹配模式</h1>
+                <p >vue-router 使用 path-to-regexp 作为路径匹配引擎，所以支持很多高级的匹配模式，例如：可选的动态路径参数、匹配零个或多个、一个或多个，甚至是自定义正则匹配。</p>
+            </section>
+            <section>
+                <h1>嵌套路由</h1>
+                <p >vue-router 不允许我们用多个同级router-view，但是我们可以嵌套使用</p>
+                <router-link to="/child/1" class="a">Go to 嵌套1</router-link>
+                <router-link to="/child/2">Go to 嵌套2</router-link>
+                <p class="os">通过设置children我们很容易做到</p>
+            </section>
+            <section>
+                <h1>编程式的导航</h1>
+                <p >除了使用 &lt;router-link&gt; 创建 a 标签来定义导航链接，我们还可以借助 router 的实例方法，通过编写代码来实现。</p>
+                <h3>router.push(location)</h3>
+<pre>
+// 字符串
+router.push('home')
+
+// 对象
+router.push({ path: 'home' })
+
+// 命名的路由
+router.push({ name: 'user', params: { userId: 123 }})
+
+// 带查询参数，变成 /register?plan=private
+router.push({ path: 'register', query: { plan: 'private' }})
+</pre>
+                <p class="os">想要导航到不同的 URL，则使用 router.push 方法。这个方法会向 history 栈添加一个新的记录，所以，当用户点击浏览器后退按钮时，则回到之前的 URL。当点击 &lt;router-link&gt; 时，这个方法会在内部调用，所以说，点击 &lt;router-link :to="..."&gt; 等同于调用 router.push(...)。</p>
+                <h3>router.replace(location)</h3>
+                <p class="os">跟 router.push 很像，唯一的不同就是，它不会向 history 添加新记录，而是跟它的方法名一样 —— 替换掉当前的 history 记录。(在使用&lt;router-link&gt; 时添加 replace)</p>
+                <h3>router.go(n)</h3>
+                <p class="os">这个方法的参数是一个整数，意思是在 history 记录中向前或者后退多少步，类似 window.history.go(n)。</p>
+<pre>
+// 在浏览器记录中前进一步，等同于 history.forward()
+router.go(1)
+
+// 后退一步记录，等同于 history.back()
+router.go(-1)
+
+// 前进 3 步记录
+router.go(3)
+
+// 如果 history 记录不够用，那就默默地失败呗
+router.go(-100)
+router.go(100)
+</pre>
+                <p class="os">router.push、 router.replace 和 router.go 跟 window.history.pushState、 window.history.replaceState 和 window.history.go好像， 实际上它们确实是效仿 window.history API 的。</p>
+            </section>
+            <section>
+                <h1>命名路由</h1>
+                <router-link :to="{name:'user',params:{name:'Ada'}}">to user:Ada</router-link>
+                <p class="os">通过设置route name值，可以很方便的跳到指定路由。    router.push({name:'user',params:{name:'Ada'}})</p>
+            </section>
+            <section>
+                <h1>命名视图</h1>
+                <p>通过此方法可以实现 同级 视图的效果</p>
+                <router-view name="a"></router-view>
+                <router-view name="b"></router-view>
+                <router-link to="/level1">同级视图1</router-link>
+                <router-link to="/level2">同级视图2</router-link>
+                <p class="os">如果创建一个布局，有 sidebar（侧导航） 和 main（主内容） 两个视图，这个时候命名视图就派上用场了</p>
+            </section>
+            <section>
+                <h1>重定向 和 别名</h1>
+                <p>重定向是通过 routes 配置来完成，下面例子是从 /a 重定向到 /b：</p>
+<pre>
+const router = new VueRouter({
+  routes: [
+    { path: '/a', redirect: '/b' }
+  ]
+})
+
+const router = new VueRouter({
+  routes: [
+    { path: '/a', redirect: { name: 'foo' }}
+  ]
+})
+
+const router = new VueRouter({
+  routes: [
+    { path: '/a', redirect: to => {
+      // 方法接收 目标路由 作为参数
+      // return 重定向的 字符串路径/路径对象
+    }}
+  ]
+})
+</pre>
+                <p>别名</p>
+<pre>
+const router = new VueRouter({
+  routes: [
+    { path: '/a', component: A, alias: '/b' }
+  ]
+})
+
+</pre>
+              <p class="os">可以自由地将 UI 结构映射到任意的 URL，而不是受限于配置的嵌套路由结构。</p>
+            </section>
+            <section>
+                <h1>History 模式</h1>
+<pre>
+const router = new VueRouter({
+  mode: 'history',
+  routes: [...]
+})
+</pre>
+              <p class="os">使用 history 模式时，URL 就像正常的 url，例如 http://yoursite.com/user/id</p>
+            </section>
+        </div>
+    </body>
+    <script src="vue.demo.js?t=5"></script>
+</html>
