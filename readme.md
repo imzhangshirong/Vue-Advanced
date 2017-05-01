@@ -6,3 +6,4 @@
 ### 3. [Demo 3，过度状态](http://imzhangshirong.github.io/Vue-Advanced/demo3/)
 ### 4. [Demo 4，Render函数](http://imzhangshirong.github.io/Vue-Advanced/demo4/)
 ### 5. [Demo 5，自定义指令和混合](http://imzhangshirong.github.io/Vue-Advanced/demo5/)
+### 6. [Demo 6，Vue-router](http://imzhangshirong.github.io/Vue-Advanced/demo6/)
